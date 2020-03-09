@@ -1,0 +1,24 @@
+{
+    "name": "fsyd88/yii2-wechat",
+    "description": "wechat extension for Yii2",
+    "type": "library",
+    "license": "MIT",
+    "minimum-stability": "stable",
+    "version": "1.0.3",
+    "authors": [
+        {
+            "name": "zhao",
+            "email": "zhao@vip.com"
+        }
+    ],
+    "require": {
+        "php": ">=5.4.0",
+        "yiisoft/yii2": "~2.0.5",
+        "guzzlehttp/guzzle": "^6.2"
+    },
+    "autoload": {
+        "psr-4": {
+            "fsyd88\\wechat\\": "src/"
+        }
+    }
+}
