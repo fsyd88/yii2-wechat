@@ -21,6 +21,10 @@ use fsyd88\wechat\api\MsgCrypt;
 class Open extends \yii\base\BaseObject {
 
     private $_config;
+    private static $_component;
+    private static $_newtemp;
+    private static $_wxopen;
+    private static $_wxa;
 
     /**
      * wechat open
@@ -31,19 +35,31 @@ class Open extends \yii\base\BaseObject {
     }
 
     public function getComponent() {
-        return new Component($this->_config);
+        if (!self::$_component) {
+            self::$_component = new Component($this->_config);
+        }
+        return self::$_component;
     }
 
     public function getNewtemp() {
-        return new NewTemp($this->_config);
+        if (!self::$_newtemp) {
+            self::$_newtemp = new NewTemp($this->_config);
+        }
+        return self::$_newtemp;
     }
 
     public function getWxopen() {
-        return new WxOpen($this->_config);
+        if (!self::$_wxopen) {
+            self::$_wxopen = new WxOpen($this->_config);
+        }
+        return self::$_wxopen;
     }
 
     public function getWxa() {
-        return new Wxa($this->_config);
+        if (!self::$_wxa) {
+            self::$_wxa = new Wxa($this->_config);
+        }
+        return self::$_wxa;
     }
 
 }
