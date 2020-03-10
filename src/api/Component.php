@@ -54,13 +54,8 @@ class Component extends BaseApi {
      * @return string
      */
     public function getCreatePreauthcode() {
-        $pre_auth_code = \Yii::$app->cache->get('wechat_open_pre_auth_code');
-        if (!$pre_auth_code) {
-            $res = $this->post('cgi-bin/component/api_create_preauthcode', ['component_appid' => $this->component_appid]);
-            Yii::$app->cache->set('wechat_open_pre_auth_code', $res['pre_auth_code'], $res['expires_in']);
-            $pre_auth_code = $res['pre_auth_code'];
-        }
-        return $pre_auth_code;
+        $res = $this->post('cgi-bin/component/api_create_preauthcode', ['component_appid' => $this->component_appid]);
+        return $res['pre_auth_code'];
     }
 
     /**
@@ -103,7 +98,7 @@ class Component extends BaseApi {
      * @return type
      */
     public function getQueryAuth($auth_code) {
-        return $this->post('cgi-bin/component/api_query_auth',['component_appid' => $this->component_appid, 'authorization_code' => $auth_code]);
+        return $this->post('cgi-bin/component/api_query_auth', ['component_appid' => $this->component_appid, 'authorization_code' => $auth_code]);
     }
 
     /*
