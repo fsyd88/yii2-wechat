@@ -18,17 +18,12 @@ class WxBase extends BaseApi {
     protected $access_token;
     private static $_ins_component;
 
-    public function init() {
+    public function init($config = []) {
         if (!self::$_ins_component) {
-            self::$_ins_component = new Component([
-                'component_appid' => $this->component_appid,
-                'component_appsecret' => $this->component_appsecret,
-                'component_verify_ticket' => $this->component_verify_ticket,
-                'authorizer_appid' => $this->authorizer_appid,
-                'authorizer_refresh_token' => $this->authorizer_refresh_token,
-            ]);
+            self::$_ins_component = new Component($config);
         }
         $this->access_token = self::$_ins_component->getAuthorizerToken();
+		print_r($this->access_token);
     }
 
     /**
