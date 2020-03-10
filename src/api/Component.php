@@ -54,8 +54,21 @@ class Component extends BaseApi {
      * @return string
      */
     public function getCreatePreauthcode() {
-        $res = $this->post('cgi-bin/component/api_create_preauthcode', ['component_appid' => $this->component_appid]);
-        return $res['pre_auth_code'];
+        $pre_auth_code = \Yii::$app->cache->get('wechat_open_pre_auth_code');
+        if (!$pre_auth_code) {
+            $res = $this->post('cgi-bin/component/api_create_preauthcode', ['component_appid' => $this->component_appid]);
+            Yii::$app->cache->set('wechat_open_pre_auth_code', $res['pre_auth_code'], $res['expires_in']);
+            $pre_auth_code = $res['pre_auth_code'];
+        }
+        return $pre_auth_code;
+    }
+
+    /**
+     * 删除预授权码
+     */
+    public function deletePreauthcode() {
+        Yii::$app->cache->delete('wechat_open_pre_auth_code');
+        return $this;
     }
 
     /**
