@@ -103,8 +103,7 @@ class Component extends BaseApi {
      * @return type
      */
     public function getQueryAuth($auth_code) {
-        $uri = $this->getTokenUri('cgi-bin/component/api_query_auth');
-        return $this->post($uri, ['component_appid' => $this->component_appid, 'authorization_code' => $auth_code]);
+        return $this->post('cgi-bin/component/api_query_auth',['component_appid' => $this->component_appid, 'authorization_code' => $auth_code]);
     }
 
     /*
