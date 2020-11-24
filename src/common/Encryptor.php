@@ -18,7 +18,8 @@ use fsyd88\wechat\exception\RuntimeException;
  *
  * @author overtrue <i@overtrue.me>
  */
-class Encryptor {
+class Encryptor
+{
 
     const ERROR_INVALID_SIGNATURE = -40001; // Signature verification failed
     const ERROR_PARSE_XML = -40002; // Parse XML failed
@@ -63,11 +64,12 @@ class Encryptor {
     /**
      * Constructor.
      *
-     * @param string      $appId
+     * @param string $appId
      * @param string|null $token
      * @param string|null $aesKey
      */
-    public function __construct(string $appId, string $token = null, string $aesKey = null) {
+    public function __construct($appId, $token = null, $aesKey = null)
+    {
         $this->appId = $appId;
         $this->token = $token;
         $this->aesKey = base64_decode($aesKey . '=', true);
@@ -78,7 +80,8 @@ class Encryptor {
      *
      * @return string
      */
-    public function getToken(): string {
+    public function getToken()
+    {
         return $this->token;
     }
 
@@ -87,18 +90,19 @@ class Encryptor {
      *
      * @param string $xml
      * @param string $nonce
-     * @param int    $timestamp
+     * @param int $timestamp
      *
      * @return string
      *
      * @throws \fsyd88\wechat\exception\RuntimeException
      */
-    public function encrypt($xml, $nonce = null, $timestamp = null): string {
+    public function encrypt($xml, $nonce = null, $timestamp = null)
+    {
         try {
             $xml = $this->pkcs7Pad(str_random(16) . pack('N', strlen($xml)) . $xml . $this->appId, $this->blockSize);
 
             $encrypted = base64_encode(AES::encrypt(
-                            $xml, $this->aesKey, substr($this->aesKey, 0, 16), OPENSSL_NO_PADDING
+                $xml, $this->aesKey, substr($this->aesKey, 0, 16), OPENSSL_NO_PADDING
             ));
             // @codeCoverageIgnoreStart
         } catch (Throwable $e) {
@@ -131,7 +135,8 @@ class Encryptor {
      *
      * @throws \fsyd88\wechat\exception\RuntimeException
      */
-    public function decrypt($content, $msgSignature, $nonce, $timestamp): string {
+    public function decrypt($content, $msgSignature, $nonce, $timestamp)
+    {
         $signature = $this->signature($this->token, $timestamp, $nonce, $content);
 
         if ($signature !== $msgSignature) {
@@ -139,20 +144,21 @@ class Encryptor {
         }
 
         $decrypted = AES::decrypt(
-                        base64_decode($content, true), $this->aesKey, substr($this->aesKey, 0, 16), OPENSSL_NO_PADDING
+            base64_decode($content, true), $this->aesKey, substr($this->aesKey, 0, 16), OPENSSL_NO_PADDING
         );
         $result = $this->pkcs7Unpad($decrypted);
-        $content = substr($result, 16, strlen($result));
-        $contentLen = unpack('N', substr($content, 0, 4))[1];
+        $message = substr($result, 16, strlen($result));
+        $contentLen = unpack('N', substr($message, 0, 4))[1];
 
-        if (trim(substr($content, $contentLen + 4)) !== $this->appId) {
+        if (trim(substr($message, $contentLen + 4)) !== $this->appId) {
             throw new RuntimeException('Invalid appId.', self::ERROR_INVALID_APP_ID);
         }
 
-        return substr($content, 4, $contentLen);
+        return $this->parseXml(substr($message, 4, $contentLen));
     }
 
-    public function parseXml($xml) {
+    public function parseXml($xml)
+    {
         return XML::parse($xml);
     }
 
@@ -163,7 +169,8 @@ class Encryptor {
      *
      * @throws self
      */
-    public function signature(): string {
+    public function signature(): string
+    {
         $array = func_get_args();
         sort($array, SORT_STRING);
 
@@ -174,13 +181,14 @@ class Encryptor {
      * PKCS#7 pad.
      *
      * @param string $text
-     * @param int    $blockSize
+     * @param int $blockSize
      *
      * @return string
      *
      * @throws \fsyd88\wechat\exception\RuntimeException
      */
-    public function pkcs7Pad(string $text, int $blockSize): string {
+    public function pkcs7Pad(string $text, int $blockSize): string
+    {
         if ($blockSize > 256) {
             throw new RuntimeException('$blockSize may not be more than 256');
         }
@@ -197,7 +205,8 @@ class Encryptor {
      *
      * @return string
      */
-    public function pkcs7Unpad(string $text): string {
+    public function pkcs7Unpad(string $text): string
+    {
         $pad = ord(substr($text, -1));
         if ($pad < 1 || $pad > $this->blockSize) {
             $pad = 0;

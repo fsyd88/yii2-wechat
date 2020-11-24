@@ -24,9 +24,6 @@ class Base {
         foreach ($config as $name => $value) {
             $this->$name = $value;
         }
-        if (!$this->component_appid || !$this->component_appsecret) {
-            throw new \Exception('component_appid and component_appsecret can not be null');
-        }
         $this->init($config);
     }
 

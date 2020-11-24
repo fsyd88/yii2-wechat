@@ -8,15 +8,19 @@
 
 namespace fsyd88\wechat\exception;
 
+use yii\base\UserException;
+
 /**
  * Description of ResponseException
  *
  * @author ZHAO
  */
-class ResponseException extends \Exception {
+class ResponseException extends UserException
+{
 
     //put your code here
-    public function __construct($error, int $code = 0) {
+    public function __construct($error, $code = 0)
+    {
         parent::__construct(json_encode($error, JSON_UNESCAPED_UNICODE), $code);
     }
 

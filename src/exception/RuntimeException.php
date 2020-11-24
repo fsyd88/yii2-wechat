@@ -11,11 +11,13 @@
 
 namespace fsyd88\wechat\exception;
 
+use yii\base\UserException;
+
 /**
  * Class RuntimeException.
  *
  * @author overtrue <i@overtrue.me>
  */
-class RuntimeException extends \Exception
+class RuntimeException extends UserException
 {
 }
