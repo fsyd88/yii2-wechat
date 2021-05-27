@@ -103,9 +103,10 @@ class Wxa extends WxBase
      * 获取代码模板列表
      * @return type
      */
-    public function gettemplatelist()
+    public function gettemplatelist($template_type = 0)
     {
         return $this->get('wxa/gettemplatelist', [
+            'template_type' => $template_type,
             'access_token' => $this->getComponentAccessToken()
         ]);
     }
