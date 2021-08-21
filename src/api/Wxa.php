@@ -217,7 +217,7 @@ class Wxa extends WxBase
      */
     public function release()
     {
-        return $this->post('wxa/release', []);
+        return $this->post('wxa/release', (object)[]);
     }
 
     /**

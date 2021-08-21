@@ -31,7 +31,7 @@ class Base {
         return $uri . '?' . http_build_query($data);
     }
 
-    public function request($method, $uri, array $data) {
+    public function request($method, $uri, $data) {
         $options = [];
         if ($method == 'POST' && $data) {
             $options['json'] = $data;

@@ -40,7 +40,7 @@ class WxBase extends BaseApi
      */
     public function post($uri, $data)
     {
-        if (isset($data['access_token'])) {
+        if (is_array($data) && isset($data['access_token'])) {
             $access_token = $data['access_token'];
             unset($data['access_token']);
         } else {
