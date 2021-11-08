@@ -19,10 +19,11 @@ class Component extends BaseApi
      * @param array $data post 数据
      * @return array $response
      */
-    protected function post($uri, $data)
+    protected function post($uri, $data, $query = [])
     {
         $component_access_token = $this->getComponentToken();
-        $get_uri = $this->buildGetUri($uri, ['component_access_token' => $component_access_token]);
+        $query['component_access_token'] = $component_access_token;
+        $get_uri = $this->buildGetUri($uri, $query);
         $res = $this->request('POST', $get_uri, $data);
         if ($res['errcode']) {
             throw new ResponseException($res, $res['errcode']);
@@ -184,4 +185,59 @@ class Component extends BaseApi
         return $this->request('GET', $uri, []);
     }
 
+    /**
+     * 快速注册企业小程序
+     * {
+     * "name": "tencent", // 企业名 （需与工商部门登记信息一致）；如果是“无主体名称个体工商户”则填“个体户+法人姓名”，例如“个体户张三”
+     * "code": "123", // 企业代码
+     * "code_type": 1, // 企业代码类型（1：统一社会信用代码， 2：组织机构代码，3：营业执照注册号）
+     * "legal_persona_wechat": "123", // 法人微信
+     * "legal_persona_name": "candy", // 法人姓名
+     * "component_phone": "1234567" //第三方联系电话
+     * }
+     * @param $params
+     */
+    public function fastRegisterWeapp($params)
+    {
+        return $this->post('cgi-bin/component/fastregisterweapp', $params, ['action' => 'create']);
+    }
+
+    /**
+     * @param stirng $name 企业名
+     * @param stirng $legal_persona_wechat 法人微信号
+     * @param stirng $legal_persona_name 法人姓名（绑定银行卡）
+     * @return array
+     * @throws ResponseException
+     */
+    public function fastRegisterQuery($name, $legal_persona_wechat, $legal_persona_name)
+    {
+        $data = [
+            'name' => $name,
+            'legal_persona_wechat' => $legal_persona_wechat,
+            'legal_persona_name' => $legal_persona_name,
+        ];
+        return $this->post('cgi-bin/component/fastregisterweapp', $data, ['action' => 'search']);
+    }
+
+    /**
+     * 配置小程序用户隐私保护
+     * @param $owner_setting
+     * @param $setting_list
+     */
+    public function setPrivacySetting($owner_setting, $setting_list)
+    {
+        $data = [
+            'owner_setting' => $owner_setting,
+            'setting_list' => $setting_list,
+        ];
+        return $this->post('cgi-bin/component/setprivacysetting', $data);
+    }
+
+    /**
+     * 查询小程序用户隐私保护
+     */
+    public function getPrivacySetting()
+    {
+        return $this->post('cgi-bin/component/getprivacysetting');
+    }
 }
