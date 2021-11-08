@@ -89,4 +89,26 @@ class WxOpen extends WxBase
         ];
         return $this->post('cgi-bin/wxaapp/createwxaqrcode', $data);
     }
+
+    /**
+     * 配置小程序用户隐私保护
+     * @param $owner_setting
+     * @param $setting_list
+     */
+    public function setPrivacySetting($owner_setting, $setting_list)
+    {
+        $data = [
+            'owner_setting' => $owner_setting,
+            'setting_list' => $setting_list,
+        ];
+        return $this->post('cgi-bin/component/setprivacysetting', $data);
+    }
+
+    /**
+     * 查询小程序用户隐私保护
+     */
+    public function getPrivacySetting()
+    {
+        return $this->post('cgi-bin/component/getprivacysetting', (object)[]);
+    }
 }
