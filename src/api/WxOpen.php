@@ -8,6 +8,8 @@
 
 namespace fsyd88\wechat\api;
 
+use GuzzleHttp\Utils;
+
 /**
  * Description of WxOpen
  *
@@ -101,7 +103,11 @@ class WxOpen extends WxBase
             'owner_setting' => $owner_setting,
             'setting_list' => $setting_list,
         ];
-        return $this->post('cgi-bin/component/setprivacysetting', $data);
+        $get_uri = $this->buildGetUri('cgi-bin/component/setprivacysetting', ['access_token' => $this->access_token]);
+        return $this->rawRequest('POST', $get_uri, [
+            'body' => Utils::jsonEncode($data, JSON_UNESCAPED_UNICODE),
+            'headers' => ['Content-Type' => 'application/json'],
+        ]);
     }
 
     /**

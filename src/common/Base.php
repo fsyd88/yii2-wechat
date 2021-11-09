@@ -16,22 +16,26 @@ use GuzzleHttp\json_decode;
  *
  * @author ZHAO
  */
-class Base {
+class Base
+{
 
     protected $base_uri = 'https://api.weixin.qq.com/';
 
-    public function __construct(array $config) {
+    public function __construct(array $config)
+    {
         foreach ($config as $name => $value) {
             $this->$name = $value;
         }
         $this->init($config);
     }
 
-    protected function buildGetUri($uri, $data = null) {
+    protected function buildGetUri($uri, $data = null)
+    {
         return $uri . '?' . http_build_query($data);
     }
 
-    public function request($method, $uri, $data) {
+    public function request($method, $uri, $data)
+    {
         $options = [];
         if ($method == 'POST' && $data) {
             $options['json'] = $data;
@@ -49,8 +53,22 @@ class Base {
         }
     }
 
-    public function init($config = []) {
-        
+    public function rawRequest($method, $uri, $options)
+    {
+        $client = new Client(['base_uri' => $this->base_uri]);
+        $response = $client->request($method, $uri, $options);
+        $content = $response->getBody()->getContents();
+        $result = json_decode($content, true);
+        if (JSON_ERROR_NONE == json_last_error()) {
+            return $result;
+        } else {
+            return $content;
+        }
+    }
+
+    public function init($config = [])
+    {
+
     }
 
 }
