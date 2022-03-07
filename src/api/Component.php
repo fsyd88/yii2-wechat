@@ -19,12 +19,16 @@ class Component extends BaseApi
      * @param array $data post 数据
      * @return array $response
      */
-    protected function post($uri, $data, $query = [])
+    protected function post($uri, $data, $query = [], $raw_post = false)
     {
         $component_access_token = $this->getComponentToken();
         $query['component_access_token'] = $component_access_token;
         $get_uri = $this->buildGetUri($uri, $query);
-        $res = $this->request('POST', $get_uri, $data);
+        if ($raw_post) {
+            $res = $this->rawRequest('POST', $get_uri, $data);
+        } else {
+            $res = $this->request('POST', $get_uri, $data);
+        }
         if ($res['errcode']) {
             throw new ResponseException($res, $res['errcode']);
         }
@@ -59,22 +63,8 @@ class Component extends BaseApi
      */
     public function getCreatePreauthcode()
     {
-        $pre_auth_code = \Yii::$app->cache->get('wechat_open_pre_auth_code');
-        if (!$pre_auth_code) {
-            $res = $this->post('cgi-bin/component/api_create_preauthcode', ['component_appid' => $this->component_appid]);
-            Yii::$app->cache->set('wechat_open_pre_auth_code', $res['pre_auth_code'], $res['expires_in']);
-            $pre_auth_code = $res['pre_auth_code'];
-        }
-        return $pre_auth_code;
-    }
-
-    /**
-     * 删除预授权码
-     */
-    public function deletePreauthcode()
-    {
-        Yii::$app->cache->delete('wechat_open_pre_auth_code');
-        return $this;
+        $res = $this->post('cgi-bin/component/api_create_preauthcode', ['component_appid' => $this->component_appid]);
+        return $res['pre_auth_code'];
     }
 
     /**
@@ -199,23 +189,32 @@ class Component extends BaseApi
      */
     public function fastRegisterWeapp($params)
     {
-        return $this->post('cgi-bin/component/fastregisterweapp', $params, ['action' => 'create']);
+        $options = [
+            'body' => json_encode($params, JSON_UNESCAPED_UNICODE),
+            'headers' => [
+                'Content-Type' => 'application/json'
+            ]
+        ];
+        return $this->post('cgi-bin/component/fastregisterweapp', $options, ['action' => 'create'], true);
     }
 
     /**
-     * @param stirng $name 企业名
-     * @param stirng $legal_persona_wechat 法人微信号
-     * @param stirng $legal_persona_name 法人姓名（绑定银行卡）
-     * @return array
-     * @throws ResponseException
+     * 快速注册企业小程序 查询状态
+     * {
+     * "name": "tencent", // 企业名 （需与工商部门登记信息一致）；如果是“无主体名称个体工商户”则填“个体户+法人姓名”，例如“个体户张三”
+     * "legal_persona_wechat": "123", // 法人微信
+     * "legal_persona_name": "candy", // 法人姓名
+     * }
+     * @param $params
      */
-    public function fastRegisterQuery($name, $legal_persona_wechat, $legal_persona_name)
+    public function fastRegisterQuery($params)
     {
-        $data = [
-            'name' => $name,
-            'legal_persona_wechat' => $legal_persona_wechat,
-            'legal_persona_name' => $legal_persona_name,
+        $options = [
+            'body' => json_encode($params, JSON_UNESCAPED_UNICODE),
+            'headers' => [
+                'Content-Type' => 'application/json'
+            ]
         ];
-        return $this->post('cgi-bin/component/fastregisterweapp', $data, ['action' => 'search']);
+        return $this->post('cgi-bin/component/fastregisterweapp', $options, ['action' => 'search'], true);
     }
 }
