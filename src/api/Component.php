@@ -2,9 +2,6 @@
 
 namespace fsyd88\wechat\api;
 
-use fsyd88\wechat\exception\ResponseException;
-use Yii;
-
 /**
  * Description of Component
  *
@@ -12,58 +9,14 @@ use Yii;
  */
 class Component extends BaseApi
 {
-
-    /**
-     * POST 请求
-     * @param string $uri api 地址
-     * @param array $data post 数据
-     * @return array $response
-     */
-    protected function post($uri, $data, $query = [], $raw_post = false)
-    {
-        $component_access_token = $this->getComponentToken();
-        $query['component_access_token'] = $component_access_token;
-        $get_uri = $this->buildGetUri($uri, $query);
-        if ($raw_post) {
-            $res = $this->rawRequest('POST', $get_uri, $data);
-        } else {
-            $res = $this->request('POST', $get_uri, $data);
-        }
-        if ($res['errcode']) {
-            throw new ResponseException($res, $res['errcode']);
-        }
-        return $res;
-    }
-
-    /**
-     * get token
-     * @return object $result  json object
-     */
-    public function getComponentToken()
-    {
-        $token = Yii::$app->cache->get('wechat_open_component_access_token');
-        if (!$token) {
-            $res = $this->request('POST', 'cgi-bin/component/api_component_token', [
-                    'component_appid' => $this->component_appid,
-                    'component_appsecret' => $this->component_appsecret,
-                    'component_verify_ticket' => $this->component_verify_ticket]
-            );
-            if ($res['errcode']) {
-                throw new ResponseException($res, $res['errcode']);
-            }
-            Yii::$app->cache->set('wechat_open_component_access_token', $res['component_access_token'], $res['expires_in']);
-            $token = $res['component_access_token'];
-        }
-        return $token;
-    }
-
     /**
      * 获取预授权码
      * @return string
+     * https://developers.weixin.qq.com/doc/oplatform/Third-party_Platforms/2.0/api/ThirdParty/token/pre_auth_code.html
      */
     public function getCreatePreauthcode()
     {
-        $res = $this->post('cgi-bin/component/api_create_preauthcode', ['component_appid' => $this->component_appid]);
+        $res = $this->postByComponent('cgi-bin/component/api_create_preauthcode', ['component_appid' => $this->component_appid]);
         return $res['pre_auth_code'];
     }
 
@@ -72,6 +25,7 @@ class Component extends BaseApi
      * @param type $redirect_uri
      * @param type $auth_type
      * @return type
+     * https://developers.weixin.qq.com/doc/oplatform/Third-party_Platforms/2.0/api/Before_Develop/Official_Accounts/official_account_website_authorization.html
      */
     public function getLoginPage($redirect_uri, $auth_type = null)
     {
@@ -87,59 +41,53 @@ class Component extends BaseApi
     }
 
     /**
-     * 获取/刷新接口调用令牌
-     */
-    public function getAuthorizerToken()
-    {
-        $authorization_code = Yii::$app->cache->get($this->authorizer_appid);
-        if (!$authorization_code) {
-            $res = $this->post('cgi-bin/component/api_authorizer_token', [
-                    'component_appid' => $this->component_appid,
-                    'authorizer_appid' => $this->authorizer_appid,
-                    'authorizer_refresh_token' => $this->authorizer_refresh_token]
-            );
-            $authorization_code = $res['authorizer_access_token'];
-            Yii::$app->cache->set($this->authorizer_appid, $authorization_code, $res['expires_in']);
-        }
-        return $authorization_code;
-    }
-
-    /**
      * 获取授权信息
      * @return type
+     * https://developers.weixin.qq.com/doc/oplatform/Third-party_Platforms/2.0/api/ThirdParty/token/authorization_info.html
      */
     public function getQueryAuth($auth_code)
     {
-        return $this->post('cgi-bin/component/api_query_auth', ['component_appid' => $this->component_appid, 'authorization_code' => $auth_code]);
+        return $this->post('cgi-bin/component/api_query_auth', [
+            'component_appid' => $this->component_appid,
+            'authorization_code' => $auth_code
+        ]);
     }
 
-    /*
+    /**
      * 获取授权方的帐号基本信息
+     * https://developers.weixin.qq.com/doc/oplatform/Third-party_Platforms/2.0/api/ThirdParty/token/api_get_authorizer_info.html
      */
-
     public function getAuthorizerInfo()
     {
-        return $this->post('cgi-bin/component/api_get_authorizer_info', ['component_appid' => $this->component_appid, 'authorizer_appid' => $this->authorizer_appid]);
+        return $this->postByComponent('cgi-bin/component/api_get_authorizer_info', [
+            'component_appid' => $this->component_appid,
+            'authorizer_appid' => $this->authorizer_appid
+        ]);
     }
 
     /**
      * 获取授权方选项信息
      * @param string $option_name 选项名称
+     * https://developers.weixin.qq.com/doc/oplatform/Third-party_Platforms/2.0/api/ThirdParty/Account_Authorization/api_get_authorizer_option.html
      */
     public function getAuthorizerOption($option_name)
     {
-        return $this->post('cgi-bin/component/api_get_authorizer_option', ['component_appid' => $this->component_appid,
-            'authorizer_appid' => $this->authorizer_appid, 'option_name' => $option_name]);
+        return $this->postByComponent('cgi-bin/component/api_get_authorizer_option', [
+            'component_appid' => $this->component_appid,
+            'authorizer_appid' => $this->authorizer_appid,
+            'option_name' => $option_name
+        ]);
     }
 
     /**
      * 设置授权方选项信息
      * @param string $option_name 选项名称
      * @param string $option_value 设置的选项值
+     * https://developers.weixin.qq.com/doc/oplatform/Third-party_Platforms/2.0/api/ThirdParty/Account_Authorization/api_set_authorizer_option.html
      */
     public function setAuthorizerOption($option_name, $option_value)
     {
-        return $this->post('cgi-bin/component/api_set_authorizer_option', [
+        return $this->postByComponent('cgi-bin/component/api_set_authorizer_option', [
             'component_appid' => $this->component_appid,
             'authorizer_appid' => $this->authorizer_appid,
             'option_name' => $option_name,
@@ -152,27 +100,32 @@ class Component extends BaseApi
      * @param number $offset 偏移位置/起始位置
      * @param number $count 拉取数量，最大为 500
      * @return type
+     * https://developers.weixin.qq.com/doc/oplatform/Third-party_Platforms/2.0/api/ThirdParty/Account_Authorization/api_get_authorizer_list.html
      */
     public function getAuthorizerList($offset, $count)
     {
-        return $this->post('cgi-bin/component/api_get_authorizer_list', ['component_appid' => $this->component_appid, 'offset' => $offset, 'count' => $count]);
+        return $this->postByComponent('cgi-bin/component/api_get_authorizer_list', [
+            'component_appid' => $this->component_appid,
+            'offset' => $offset,
+            'count' => $count
+        ]);
     }
 
     /**
      * 登陆获取 openid
      * @param type $js_code js获取的code
      * @return type
+     * https://developers.weixin.qq.com/doc/oplatform/Third-party_Platforms/2.0/api/others/WeChat_login.html
      */
     public function jscode2session($js_code)
     {
-        $uri = $this->buildGetUri('sns/component/jscode2session', [
+        return $this->getByComponent('sns/component/jscode2session', [
             'appid' => $this->authorizer_appid,
             'js_code' => $js_code,
             'grant_type' => 'authorization_code',
             'component_appid' => $this->component_appid,
             'component_access_token' => $this->getComponentToken(),
         ]);
-        return $this->request('GET', $uri, []);
     }
 
     /**
@@ -186,6 +139,7 @@ class Component extends BaseApi
      * "component_phone": "1234567" //第三方联系电话
      * }
      * @param $params
+     * https://developers.weixin.qq.com/doc/oplatform/Third-party_Platforms/2.0/api/Register_Mini_Programs/Fast_Registration_Interface_document.html
      */
     public function fastRegisterWeapp($params)
     {
@@ -195,7 +149,7 @@ class Component extends BaseApi
                 'Content-Type' => 'application/json'
             ]
         ];
-        return $this->post('cgi-bin/component/fastregisterweapp', $options, ['action' => 'create'], true);
+        return $this->postByComponent('cgi-bin/component/fastregisterweapp', $options, ['action' => 'create'], true);
     }
 
     /**
@@ -206,6 +160,8 @@ class Component extends BaseApi
      * "legal_persona_name": "candy", // 法人姓名
      * }
      * @param $params
+     *
+     * https://developers.weixin.qq.com/doc/oplatform/Third-party_Platforms/2.0/api/Register_Mini_Programs/Fast_Registration_Interface_document.html
      */
     public function fastRegisterQuery($params)
     {
@@ -215,6 +171,6 @@ class Component extends BaseApi
                 'Content-Type' => 'application/json'
             ]
         ];
-        return $this->post('cgi-bin/component/fastregisterweapp', $options, ['action' => 'search'], true);
+        return $this->postByComponent('cgi-bin/component/fastregisterweapp', $options, ['action' => 'search'], true);
     }
 }

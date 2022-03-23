@@ -34,7 +34,7 @@ class Base
         return $uri . '?' . http_build_query($data);
     }
 
-    public function request($method, $uri, $data)
+    protected function request($method, $uri, $data)
     {
         $options = [];
         if ($method == 'POST' && $data) {
@@ -53,7 +53,7 @@ class Base
         }
     }
 
-    public function rawRequest($method, $uri, $options)
+    protected function rawRequest($method, $uri, $options)
     {
         $client = new Client(['base_uri' => $this->base_uri]);
         $response = $client->request($method, $uri, $options);

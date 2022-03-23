@@ -37,14 +37,24 @@ class MiniProgram extends common\Base
         return $this->request('POST', $get_uri, $data);
     }
 
-    public function get($uri, $data = [])
+    public function httpGet($uri, $data = [])
     {
         $data['access_token'] = $this->access_token;
         return $this->request('GET', $uri, $data);
     }
 
+    public function setAccessToken($access_token)
+    {
+        $this->access_token = $access_token;
+        return $this;
+    }
+
+
     public function getAccessToken()
     {
+        if ($this->access_token) {
+            return $this->access_token;
+        }
         $access_token = \Yii::$app->cache->get('wechat_mini_access_token');
         if (!$access_token) {
             $uri = $this->buildGetUri('cgi-bin/token', ['grant_type' => 'client_credential', 'appid' => $this->appid, 'secret' => $this->secret]);
@@ -121,7 +131,7 @@ class MiniProgram extends common\Base
      */
     public function getTplList()
     {
-        return $this->get('wxaapi/newtmpl/gettemplate');
+        return $this->httpGet('wxaapi/newtmpl/gettemplate');
     }
 
     /**
@@ -130,7 +140,7 @@ class MiniProgram extends common\Base
      */
     public function getTplCategory()
     {
-        return $this->get('wxaapi/newtmpl/getcategory');
+        return $this->httpGet('wxaapi/newtmpl/getcategory');
     }
 
     /**
@@ -142,7 +152,7 @@ class MiniProgram extends common\Base
      */
     public function getTplTitleList($ids, $start = 0, $limit = 20)
     {
-        return $this->get('wxaapi/newtmpl/getpubtemplatetitles', [
+        return $this->httpGet('wxaapi/newtmpl/getpubtemplatetitles', [
             'ids' => $ids,
             'start' => $start,
             'limit' => $limit

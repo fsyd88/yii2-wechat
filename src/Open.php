@@ -3,10 +3,10 @@
 namespace fsyd88\wechat;
 
 use fsyd88\wechat\api\Component;
-use fsyd88\wechat\api\NewTemp;
-use fsyd88\wechat\api\WxOpen;
-use fsyd88\wechat\api\Wxa;
 use fsyd88\wechat\api\MsgCrypt;
+use fsyd88\wechat\api\NewTemp;
+use fsyd88\wechat\api\Wxa;
+use fsyd88\wechat\api\WxOpen;
 
 /**
  * wechat 第三方平台
@@ -15,7 +15,6 @@ use fsyd88\wechat\api\MsgCrypt;
  * @property \fsyd88\wechat\api\NewTemp $newtemp newtemp
  * @property \fsyd88\wechat\api\WxOpen $wxopen wxopen
  * @property \fsyd88\wechat\api\Wxa $wxa wxa
- *
  *
  */
 class Open extends \yii\base\BaseObject
@@ -70,5 +69,4 @@ class Open extends \yii\base\BaseObject
         }
         return self::$_wxa;
     }
-
 }

@@ -13,10 +13,11 @@ namespace fsyd88\wechat\api;
  *
  * @author ZHAO
  */
-class CShop extends WxBase
+class CShop extends BaseApi
 {
     /**
      * 申请自定义交易组件
+     * https://developers.weixin.qq.com/miniprogram/dev/platform-capabilities/business-capabilities/ministore/minishopopencomponent2/API/enter/enter_apply.html
      */
     public function apply()
     {
@@ -26,6 +27,7 @@ class CShop extends WxBase
     /**
      * 获取接入状态
      * 如果账户未接入，将返回错误码1040003
+     * https://developers.weixin.qq.com/miniprogram/dev/platform-capabilities/business-capabilities/ministore/minishopopencomponent2/API/enter/enter_check.html
      */
     public function check()
     {
@@ -35,6 +37,7 @@ class CShop extends WxBase
     /**
      * 完成接入任务
      * @param number $access_info_item 6:完成spu接口，7:完成订单接口，8:完成物流接口，9:完成售后接口，10:测试完成，11:发版完成
+     * https://developers.weixin.qq.com/miniprogram/dev/platform-capabilities/business-capabilities/ministore/minishopopencomponent2/API/enter/finish_access_info.html
      */
     public function finishAccessInfo($access_info_item)
     {
@@ -46,6 +49,7 @@ class CShop extends WxBase
     /**
      * 场景接入申请
      * @param number $scene_group_id 1:视频号、公众号场景
+     * https://developers.weixin.qq.com/miniprogram/dev/platform-capabilities/business-capabilities/ministore/minishopopencomponent2/API/enter/scene_apply.html
      */
     public function applyScene($scene_group_id = 1)
     {
@@ -81,11 +85,11 @@ class CShop extends WxBase
      *
      * @param string $img_url upload_type=1时必传
      */
-    public function imgUpload($img_url)
+    public function imgUpload($img_url, $resp_type = 1, $upload_type = 1)
     {
         return $this->post('shop/img/upload', [
-            'resp_type' => 1,
-            'upload_type' => 1,
+            'resp_type' => $resp_type,
+            'upload_type' => $upload_type,
             'img_url' => $img_url
         ]);
     }
@@ -279,11 +283,32 @@ class CShop extends WxBase
     }
 
     /**
+     * 按照分享员获取订单
+     */
+    public function orderListByShare($data)
+    {
+        return $this->post('shop/order/get_list_by_share', $data);
+    }
+
+    /**
      * 获取订单列表
      */
     public function orderGetList($data)
     {
         return $this->post('shop/order/get_list', $data);
+    }
+
+    /**
+     * 获取快递公司列表
+     */
+    public function getCompanyList()
+    {
+        $data = \Yii::$app->cache->get('shop_get_company_list');
+        if (!$data) {
+            $data = $this->post('shop/delivery/get_company_list', (object)[]);
+            \Yii::$app->cache->set('shop_get_company_list', $data, 86400);
+        }
+        return $data;
     }
 
     /**
@@ -303,6 +328,54 @@ class CShop extends WxBase
             'out_order_id' => $out_order_id,
             'openid' => $openid,
         ]);
+    }
+
+    /**
+     * 生成售后单
+     */
+    public function ecaftersaleAdd($params)
+    {
+        return $this->post('shop/ecaftersale/add', $params);
+    }
+
+    /**
+     * 用户取消售后单
+     */
+    public function ecaftersaleCancel($params)
+    {
+        return $this->post('shop/ecaftersale/cancel', $params);
+    }
+
+    /**
+     * 同意退款
+     */
+    public function ecaftersaleAcceptrefund($params)
+    {
+        return $this->post('shop/ecaftersale/acceptrefund', $params);
+    }
+
+    /**
+     * 同意退货
+     */
+    public function ecaftersaleAcceptreturn($params)
+    {
+        return $this->post('shop/ecaftersale/acceptreturn', $params);
+    }
+
+    /**
+     * 拒绝售后
+     */
+    public function ecaftersaleReject($aftersale_id)
+    {
+        return $this->post('shop/ecaftersale/reject', ['aftersale_id' => $aftersale_id]);
+    }
+
+    /**
+     * 更新售后单
+     */
+    public function ecaftersaleUpdate($params)
+    {
+        return $this->post('shop/ecaftersale/update', $params);
     }
 
     /**
