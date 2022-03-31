@@ -4,25 +4,24 @@ namespace fsyd88\wechat;
 
 use fsyd88\wechat\api\Component;
 use fsyd88\wechat\api\MsgCrypt;
-use fsyd88\wechat\api\NewTemp;
+use fsyd88\wechat\api\NewTmpl;
 use fsyd88\wechat\api\Wxa;
 use fsyd88\wechat\api\WxOpen;
 
 /**
  * wechat 第三方平台
  *
- * @property \fsyd88\wechat\api\Component $component component
- * @property \fsyd88\wechat\api\NewTemp $newtemp newtemp
- * @property \fsyd88\wechat\api\WxOpen $wxopen wxopen
- * @property \fsyd88\wechat\api\Wxa $wxa wxa
- *
+ * @property Component $component component
+ * @property NewTmpl $newtmpl newtmpl
+ * @property WxOpen $wxopen wxopen
+ * @property Wxa $wxa wxa
  */
 class Open extends \yii\base\BaseObject
 {
 
     private $_config;
     private static $_component;
-    private static $_newtemp;
+    private static $_newtmpl;
     private static $_wxopen;
     private static $_wxa;
 
@@ -46,12 +45,12 @@ class Open extends \yii\base\BaseObject
         return self::$_component;
     }
 
-    public function getNewtemp()
+    public function getNewtmpl()
     {
-        if (!self::$_newtemp) {
-            self::$_newtemp = new NewTemp($this->_config);
+        if (!self::$_newtmpl) {
+            self::$_newtmpl = new NewTmpl($this->_config);
         }
-        return self::$_newtemp;
+        return self::$_newtmpl;
     }
 
     public function getWxopen()

@@ -51,9 +51,11 @@ class WxOpen extends BaseApi
      * @param array $categories
      * https://developers.weixin.qq.com/doc/oplatform/Third-party_Platforms/2.0/api/category/addcategory.html
      */
-    public function addCategory(array $categories)
+    public function addCategory($categories)
     {
-        return $this->post('cgi-bin/wxopen/addcategory', $categories);
+        return $this->post('cgi-bin/wxopen/addcategory', [
+            'categories' => $categories,
+        ]);
     }
 
     /**

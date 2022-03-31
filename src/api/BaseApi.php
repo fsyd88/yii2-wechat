@@ -4,6 +4,7 @@ namespace fsyd88\wechat\api;
 
 use fsyd88\wechat\common\Base;
 use fsyd88\wechat\exception\ResponseException;
+use Yii;
 
 /**
  * Description of Base
